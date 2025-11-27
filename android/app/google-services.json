@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "722788472688",
+    "project_id": "collabverse-21356",
+    "storage_bucket": "collabverse-21356.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:722788472688:android:542b64010326d1e4c821b5",
+        "android_client_info": {
+          "package_name": "com.example.collabverse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmMI7c3SfF-1RVxSwgSB8EV8MSY9sD_ow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:722788472688:android:961501adec38e31fc821b5",
+        "android_client_info": {
+          "package_name": "com.example.teamproj"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmMI7c3SfF-1RVxSwgSB8EV8MSY9sD_ow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
