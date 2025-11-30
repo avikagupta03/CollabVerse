@@ -4,10 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../utils/skill_similarity_calculator.dart';
 import '../../models/user_profile.dart';
 import '../../services/profile_service.dart';
+import '../../services/join_request_service.dart';
 import '../../services/connectivity_service.dart';
 
 class DiscoverPage extends StatefulWidget {
-  const DiscoverPage({Key? key}) : super(key: key);
+  const DiscoverPage({super.key});
 
   @override
   State<DiscoverPage> createState() => _DiscoverPageState();
@@ -457,7 +458,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
   ) {
     final description = data['description'] ?? 'No description';
     final requiredSkills = List<String>.from(data['required_skills'] ?? []);
-    final teamSize = data['team_size'] ?? 2;
+    final String? teamId = _resolveTeamId(data['team_id']);
+    final int teamSize = _sanitizeTeamSize(_extractTeamSize(data['team_size']));
     final status = data['status'] ?? 'Open';
     final createdAt = data['created_at'] as Timestamp?;
     final creatorName = data['creator_name'] ?? 'Team Captain';
@@ -675,35 +677,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
               Row(
                 children: [
                   // Team size
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.shade200, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.group,
-                          size: 16,
-                          color: Colors.blue.shade600,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Team of $teamSize',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blue.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildTeamSizeBadge(teamId, teamSize),
                   const SizedBox(width: 8),
                   // Skills count
                   Container(
@@ -794,14 +768,47 @@ class _DiscoverPageState extends State<DiscoverPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Joined request: $description'),
-                        backgroundColor: Colors.green,
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
+                  onPressed: () async {
+                    try {
+                      // Prevent duplicate pending request by same user
+                      final creatorId = data['creator_id'] ?? '';
+                      if (creatorId.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Cannot join: missing creator'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Build a short message including matching skills
+                      final msg = matchingSkills.isNotEmpty
+                          ? 'Hi! I\'d like to join. Matching skills: ${matchingSkills.join(', ')}'
+                          : 'Hi! I\'d like to join your team request.';
+
+                      await JoinRequestService().createJoinRequestForRequest(
+                        requestId: requestId,
+                        creatorId: creatorId,
+                        message: msg,
+                      );
+
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Join request sent'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to send request: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
@@ -822,6 +829,73 @@ class _DiscoverPageState extends State<DiscoverPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildTeamSizeBadge(String? teamId, int fallbackSize) {
+    Widget buildChip(int size) {
+      final label = _formatTeamSizeLabel(size);
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.blue.shade200, width: 1),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.group, size: 16, color: Colors.blue.shade600),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue.shade600,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final normalizedFallback = _sanitizeTeamSize(fallbackSize);
+    if (teamId == null || teamId.trim().isEmpty) {
+      return buildChip(normalizedFallback);
+    }
+
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance.collection('teams').doc(teamId).snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
+          return buildChip(normalizedFallback);
+        }
+
+        final data = snapshot.data!.data();
+        final members = data?['members'];
+        final memberCount = members is List ? members.length : normalizedFallback;
+        return buildChip(_sanitizeTeamSize(memberCount));
+      },
+    );
+  }
+
+  int _extractTeamSize(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 2;
+    return 2;
+  }
+
+  String? _resolveTeamId(dynamic raw) {
+    if (raw is String && raw.trim().isNotEmpty) return raw;
+    if (raw is DocumentReference) return raw.id;
+    return null;
+  }
+
+  int _sanitizeTeamSize(int size) => size < 0 ? 0 : size;
+
+  String _formatTeamSizeLabel(int size) {
+    if (size <= 0) return 'Team forming';
+    return size == 1 ? 'Team of 1' : 'Team of $size';
   }
 
   Color _getStatusColor(String status) {

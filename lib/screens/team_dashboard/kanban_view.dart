@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class KanbanView extends StatelessWidget {
   final String teamId;
-  const KanbanView({Key? key, required this.teamId}) : super(key: key);
+  const KanbanView({super.key, required this.teamId});
 
 
   @override
@@ -55,7 +55,7 @@ class TaskColumn extends StatelessWidget {
   final String title;
   final List items;
   final CollectionReference ref;
-  const TaskColumn({Key? key, required this.title, required this.items, required this.ref}) : super(key: key);
+  const TaskColumn({super.key, required this.title, required this.items, required this.ref});
 
 
   @override

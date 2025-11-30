@@ -16,11 +16,11 @@ void main() async {
   final connectivityService = ConnectivityService();
   await connectivityService.initialize();
 
-  runApp(const TeamForgeApp());
+  runApp(const CrewCraftApp());
 }
 
-class TeamForgeApp extends StatelessWidget {
-  const TeamForgeApp({Key? key}) : super(key: key);
+class CrewCraftApp extends StatelessWidget {
+  const CrewCraftApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +28,12 @@ class TeamForgeApp extends StatelessWidget {
       providers: [ChangeNotifierProvider(create: (_) => AuthService())],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'TeamForge AI',
-        theme: ThemeData(useMaterial3: true, primarySwatch: Colors.deepPurple),
+        title: 'CrewCraft AI',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1C7CF3)),
+          fontFamily: 'Roboto',
+        ),
         routes: {
           '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),
@@ -42,7 +46,7 @@ class TeamForgeApp extends StatelessWidget {
 }
 
 class RootPage extends StatelessWidget {
-  const RootPage({Key? key}) : super(key: key);
+  const RootPage({super.key});
 
   @override
   Widget build(BuildContext context) {

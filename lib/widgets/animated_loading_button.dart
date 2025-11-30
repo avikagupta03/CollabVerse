@@ -7,12 +7,12 @@ class AnimatedLoadingButton extends StatefulWidget {
   final Color? backgroundColor;
 
   const AnimatedLoadingButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.isLoading = false,
     this.backgroundColor,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedLoadingButton> createState() => _AnimatedLoadingButtonState();
@@ -58,7 +58,10 @@ class _AnimatedLoadingButtonState extends State<AnimatedLoadingButton>
         style: ElevatedButton.styleFrom(
           backgroundColor: widget.backgroundColor ?? Colors.deepPurple,
           minimumSize: const Size(double.infinity, 50),
-          disabledBackgroundColor: Colors.grey[400],
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white70,
+          disabledBackgroundColor:
+              (widget.backgroundColor ?? Colors.deepPurple).withOpacity(0.6),
         ),
         child: widget.isLoading
             ? Row(
@@ -75,10 +78,22 @@ class _AnimatedLoadingButtonState extends State<AnimatedLoadingButton>
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(widget.label),
+                  Text(
+                    widget.label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               )
-            : Text(widget.label),
+            : Text(
+                widget.label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
     );
   }

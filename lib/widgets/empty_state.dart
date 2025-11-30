@@ -8,13 +8,13 @@ class EmptyState extends StatelessWidget {
   final String? actionLabel;
 
   const EmptyState({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.description,
     this.onAction,
     this.actionLabel,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

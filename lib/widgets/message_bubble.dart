@@ -8,13 +8,13 @@ class MessageBubble extends StatelessWidget {
   final bool isEdited;
 
   const MessageBubble({
-    Key? key,
+    super.key,
     required this.message,
     required this.senderName,
     required this.timestamp,
     required this.isCurrentUser,
     this.isEdited = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

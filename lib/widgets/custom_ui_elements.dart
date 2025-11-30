@@ -10,14 +10,14 @@ class GradientButtonWidget extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
   const GradientButtonWidget({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.isLoading = false,
     this.icon,
     this.fullWidth = true,
     this.padding = const EdgeInsets.symmetric(vertical: 14),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -103,14 +103,14 @@ class GradientButton extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
   const GradientButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.isLoading = false,
     this.icon,
     this.fullWidth = true,
     this.padding = const EdgeInsets.symmetric(vertical: 14),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -194,12 +194,12 @@ class OutlinedButtonCustom extends StatelessWidget {
   final bool fullWidth;
 
   const OutlinedButtonCustom({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.icon,
     this.fullWidth = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -237,13 +237,13 @@ class CustomCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const CustomCard({
-    Key? key,
+    super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.borderColor = Colors.transparent,
     this.borderWidth = 1.5,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +285,7 @@ class CustomInputField extends StatefulWidget {
   final String? Function(String?)? validator;
 
   const CustomInputField({
-    Key? key,
+    super.key,
     required this.label,
     required this.hint,
     required this.controller,
@@ -293,7 +293,7 @@ class CustomInputField extends StatefulWidget {
     this.maxLines = 1,
     this.keyboardType = TextInputType.text,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomInputField> createState() => _CustomInputFieldState();
@@ -358,12 +358,12 @@ class CustomBadge extends StatelessWidget {
   final IconData? icon;
 
   const CustomBadge({
-    Key? key,
+    super.key,
     required this.label,
     this.backgroundColor = Colors.deepPurple,
     this.textColor = Colors.white,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

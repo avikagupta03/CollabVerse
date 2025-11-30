@@ -4,7 +4,7 @@ import '../../services/team_request_service.dart';
 import '../../services/team_matcher_service.dart';
 
 class CreateRequestPage extends StatefulWidget {
-  const CreateRequestPage({Key? key}) : super(key: key);
+  const CreateRequestPage({super.key});
 
   @override
   State<CreateRequestPage> createState() => _CreateRequestPageState();

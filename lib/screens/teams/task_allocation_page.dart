@@ -9,10 +9,10 @@ class TaskAllocationPage extends StatefulWidget {
   final List<String> teamMemberIds;
 
   const TaskAllocationPage({
-    Key? key,
+    super.key,
     required this.teamId,
     required this.teamMemberIds,
-  }) : super(key: key);
+  });
 
   @override
   State<TaskAllocationPage> createState() => _TaskAllocationPageState();

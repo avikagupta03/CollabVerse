@@ -5,7 +5,7 @@ import '../../widgets/animated_loading_button.dart';
 import '../../widgets/progress_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -171,6 +171,10 @@ class _ProfileScreenState extends State<ProfileScreen>
 
             // Save Button
             _buildSaveButton(),
+            const SizedBox(height: 16),
+
+            // Logout Button
+            _buildLogoutButton(),
             const SizedBox(height: 32),
           ],
         ),
@@ -455,6 +459,64 @@ class _ProfileScreenState extends State<ProfileScreen>
         isLoading: _isSaving,
         backgroundColor: Colors.transparent,
         onPressed: _saveProfile,
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return OutlinedButton.icon(
+      onPressed: () async {
+        // Show confirmation dialog
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Logout'),
+            content: const Text('Are you sure you want to logout?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmed == true) {
+          try {
+            // Sign out from Firebase
+            await FirebaseAuth.instance.signOut();
+            
+            if (!mounted) return;
+            
+            // Navigate to login screen and remove all previous routes
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/login',
+              (route) => false,
+            );
+          } catch (e) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error logging out: $e')),
+            );
+          }
+        }
+      },
+      icon: const Icon(Icons.logout),
+      label: const Text('Logout'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.red,
+        side: const BorderSide(color: Colors.red, width: 2),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
     );
   }

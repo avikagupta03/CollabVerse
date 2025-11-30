@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'chat_view.dart';
 import 'kanban_view.dart';
+import 'team_members_view.dart';
 
 
 class TeamDashboard extends StatefulWidget {
   final String teamId;
   final Map<String, dynamic> teamData;
-  const TeamDashboard({Key? key, required this.teamId, required this.teamData}) : super(key: key);
+  const TeamDashboard({super.key, required this.teamId, required this.teamData});
 
 
   @override
@@ -20,15 +21,28 @@ class _TeamDashboardState extends State<TeamDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    Widget currentView;
+    if (index == 0) {
+      currentView = ChatView(teamId: widget.teamId);
+    } else if (index == 1) {
+      currentView = KanbanView(teamId: widget.teamId);
+    } else {
+      currentView = TeamMembersView(
+        teamId: widget.teamId,
+        teamData: widget.teamData,
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.teamData['project_name'] ?? widget.teamData['name'])),
-      body: index == 0 ? ChatView(teamId: widget.teamId) : KanbanView(teamId: widget.teamId),
+      body: currentView,
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         onDestinationSelected: (i) => setState(() => index = i),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.chat), label: 'Chat'),
           NavigationDestination(icon: Icon(Icons.task), label: 'Tasks'),
+          NavigationDestination(icon: Icon(Icons.people), label: 'Members'),
         ],
       ),
     );

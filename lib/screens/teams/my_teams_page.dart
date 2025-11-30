@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collabverse/screens/team_dashboard/team_dashboard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'pending_requests_page.dart';
+import '../../services/join_request_service.dart';
 
 class MyTeamsPage extends StatefulWidget {
-  const MyTeamsPage({Key? key}) : super(key: key);
+  const MyTeamsPage({super.key});
 
   @override
   State<MyTeamsPage> createState() => _MyTeamsPageState();
@@ -41,19 +43,93 @@ class _MyTeamsPageState extends State<MyTeamsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'My Teams',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Manage and collaborate with your teams',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'My Teams',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.deepPurple,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Manage and collaborate with your teams',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.grey.shade600),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Pending Requests Button
+                      // Badge shows combined pending from teams you lead and requests you created
+                      StreamBuilder<List>(
+                        stream: JoinRequestService().getMyTeamRequests(),
+                        builder: (context, teamSnap) {
+                          final teamCount = teamSnap.data?.length ?? 0;
+                          return StreamBuilder<List>(
+                            stream: JoinRequestService()
+                                .getMyIncomingRequestJoins(),
+                            builder: (context, reqSnap) {
+                              final count =
+                                  teamCount + (reqSnap.data?.length ?? 0);
+                              return Stack(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const PendingRequestsPage(),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.notifications_outlined,
+                                    ),
+                                    iconSize: 28,
+                                    color: Colors.deepPurple,
+                                    tooltip: 'Pending Join Requests',
+                                  ),
+                                  if (count > 0)
+                                    Positioned(
+                                      right: 6,
+                                      top: 6,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 18,
+                                          minHeight: 18,
+                                        ),
+                                        child: Text(
+                                          count > 9 ? '9+' : count.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -279,9 +355,17 @@ class _MyTeamsPageState extends State<MyTeamsPage> {
     Map<String, dynamic> data,
     String teamId,
   ) {
-    final teamName = data['project_name'] ?? data['name'] ?? 'Unnamed Team';
+    final rawTeamName = (data['name'] as String?)?.trim() ?? '';
+    final rawProjectName = (data['project_name'] as String?)?.trim() ?? '';
+    final teamName = rawTeamName.isNotEmpty
+        ? rawTeamName
+        : rawProjectName.isNotEmpty
+        ? rawProjectName
+        : 'Unnamed Team';
+
     final members = List<dynamic>.from(data['members'] ?? []);
     final description = data['description'] ?? 'No description';
+    final projectLabel = rawProjectName.isNotEmpty ? rawProjectName : null;
     final memberCount = members.length;
 
     return Card(
@@ -341,6 +425,19 @@ class _MyTeamsPageState extends State<MyTeamsPage> {
                               ),
                         ),
                         const SizedBox(height: 4),
+                        if (projectLabel != null) ...[
+                          Text(
+                            projectLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.deepPurple.shade300,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                        ],
                         Text(
                           description,
                           maxLines: 1,

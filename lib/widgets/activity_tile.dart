@@ -9,14 +9,14 @@ class ActivityTile extends StatelessWidget {
   final Color iconColor;
 
   const ActivityTile({
-    Key? key,
+    super.key,
     required this.userName,
     required this.actionType,
     required this.description,
     required this.timestamp,
     required this.icon,
     required this.iconColor,
-  }) : super(key: key);
+  });
 
   String _getTimeAgo() {
     final now = DateTime.now();

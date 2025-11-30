@@ -9,10 +9,10 @@ class TeamActivityScreen extends StatelessWidget {
   final String teamName;
 
   const TeamActivityScreen({
-    Key? key,
+    super.key,
     required this.teamId,
     required this.teamName,
-  }) : super(key: key);
+  });
 
   IconData _getIconForAction(String actionType) {
     switch (actionType) {

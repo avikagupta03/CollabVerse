@@ -11,12 +11,12 @@ class TeamChatScreen extends StatefulWidget {
   final String userName;
 
   const TeamChatScreen({
-    Key? key,
+    super.key,
     required this.teamId,
     required this.teamName,
     required this.userId,
     required this.userName,
-  }) : super(key: key);
+  });
 
   @override
   State<TeamChatScreen> createState() => _TeamChatScreenState();

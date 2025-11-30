@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/join_request_service.dart';
 
 
 class SuggestionsPage extends StatelessWidget {
   final String requestId;
-  const SuggestionsPage({Key? key, required this.requestId}) : super(key: key);
+  const SuggestionsPage({super.key, required this.requestId});
 
 
   @override
@@ -19,12 +20,54 @@ class SuggestionsPage extends StatelessWidget {
           itemCount: suggestions.length,
           itemBuilder: (context, i) {
             final s = suggestions[i];
-            return ListTile(
-              title: Text('Team Suggestion ${i + 1}'),
-              subtitle: Text('Members: ${s['members']}'),
-              trailing: ElevatedButton(
-                onPressed: () {},
-                child: const Text('Create Team'),
+            final teamId = s['team_id'];
+            final teamName = s['team_name'] ?? 'Suggested Team';
+            final members = s['members'];
+
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: ListTile(
+                title: Text(teamName),
+                subtitle: Text('Members: $members'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (teamId != null)
+                      OutlinedButton(
+                        onPressed: () async {
+                          try {
+                            await JoinRequestService().createJoinRequest(
+                              teamId: teamId,
+                              message: 'Hi! I\'d like to join your team.',
+                            );
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Join request sent to team'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to send request: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text('Request to Join'),
+                      ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Existing behavior placeholder
+                      },
+                      child: const Text('Create Team'),
+                    ),
+                  ],
+                ),
               ),
             );
           },

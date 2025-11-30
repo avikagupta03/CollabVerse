@@ -6,7 +6,7 @@ import '../../widgets/empty_state.dart';
 class NotificationsScreen extends StatefulWidget {
   final String userId;
 
-  const NotificationsScreen({Key? key, required this.userId}) : super(key: key);
+  const NotificationsScreen({super.key, required this.userId});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
